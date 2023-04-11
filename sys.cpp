@@ -4,7 +4,8 @@
 #include <ctime>
 #include <curl/curl.h>
 #include <vector>
-#include "../include/data_sys.hpp"
+#include "./include/data_sys.hpp"
+#include "position_sizing.cpp"
 using namespace std;
  
 
@@ -226,12 +227,121 @@ void PriceHistory::clearDataPoints() {
     this->dataPoints.clear();
 }
 
+void PriceHistory::calculatePositionSizeForTrade(
+        size_t dataIndex,
+        double portfolioSize,
+        double riskPercentage,
+        double stopLossPercentage
+    ) {
+        if (dataIndex >= dataPoints.size()) {
+            cout << "Invalid data index." << endl;
+            return;
+        }
+
+        PositionSizing positionSizer(riskPercentage, stopLossPercentage);
+        double entryPrice = dataPoints[dataIndex].getClosing();
+
+        double positionSize = positionSizer.calculatePositionSize(portfolioSize, entryPrice);
+
+        cout << "Position Size for trade at index " << dataIndex << ": " << positionSize << endl;
+    }
 string PriceHistory::getHistoricalCsv(
     time_t startDate,
     time_t endDate,
     const char *interval
 ) {
     return fetchYahooCsvData(this->assetSymbol, startDate, endDate, interval);
+}
+vector<double> PriceHistory::calculateBollingerBands(size_t period, double stdDevFactor) {
+    vector<double> bollingerUpper, bollingerLower;
+    size_t dataSize = dataPoints.size();
+
+    for (size_t i = period - 1; i < dataSize; ++i) {
+        double sum = 0.0;
+        for (size_t j = i - period + 1; j <= i; ++j) {
+            sum += dataPoints[j].getClosing();
+        }
+        double movingAvg = sum / period;
+
+        double squaredDiffSum = 0.0;
+        for (size_t j = i - period + 1; j <= i; ++j) {
+            double diff = dataPoints[j].getClosing() - movingAvg;
+            squaredDiffSum += diff * diff;
+        }
+        double stdDev = sqrt(squaredDiffSum / period);
+
+        bollingerUpper.push_back(movingAvg + stdDevFactor * stdDev);
+        bollingerLower.push_back(movingAvg - stdDevFactor * stdDev);
+    }
+
+    return bollingerUpper;  
+}
+
+ pair<vector<double>, vector<double>> PriceHistory::calculateSMA(size_t windowSize) {
+    size_t dataSize = dataPoints.size();
+    vector<double> smaValues(dataSize, 0.0);
+    for (size_t i = windowSize - 1; i < dataSize; ++i) {
+        double sum = 0.0;
+        for (size_t j = i - windowSize + 1; j <= i; ++j) {
+            sum += dataPoints[j].getClosing();
+        }
+        smaValues[i] = sum / windowSize;
+    }
+
+    return make_pair(smaValues, vector<double>());
+}
+
+pair<vector<double>, vector<double>> PriceHistory::calculateEMA(size_t windowSize, double emaSmoothingFactor) {
+    size_t dataSize = dataPoints.size();
+    vector<double> emaValues(dataSize, 0.0);
+
+    emaValues[windowSize - 1] = dataPoints[windowSize - 1].getClosing();
+    for (size_t i = windowSize; i < dataSize; ++i) {
+        emaValues[i] = emaSmoothingFactor * dataPoints[i].getClosing() + (1 - emaSmoothingFactor) * emaValues[i - 1];
+    }
+
+    return make_pair(vector<double>(), emaValues);
+}
+
+double PriceHistory::performMonteCarloSimulationAdvanced(size_t numSimulations, double initialInvestment) {
+    size_t dataSize = dataPoints.size();
+    double totalProfit = 0.0;
+
+    for (size_t simulation = 0; simulation < numSimulations; ++simulation) {
+        double investment = initialInvestment;
+        double cash = investment;
+        double sharesOwned = 0.0;
+        size_t currentDay = 0;
+
+        // Implement more advanced trading strategy using machine learning models
+        // Example: Using a simple moving average crossover strategy
+        vector<double> movingAveragesShort = calculateSMA(20); // Short-term MA
+        vector<double> movingAveragesLong = calculateSMA(50);  // Long-term MA
+
+        for (size_t day = 51; day < dataSize; ++day) {
+            // Predict using machine learning model (simplified for illustration)
+            bool shouldBuy = movingAveragesShort[day - 1] > movingAveragesLong[day - 1] &&
+                             movingAveragesShort[day] <= movingAveragesLong[day];
+
+            bool shouldSell = movingAveragesShort[day - 1] < movingAveragesLong[day - 1] &&
+                              movingAveragesShort[day] >= movingAveragesLong[day];
+
+            if (shouldBuy) {
+                double amountToInvest = cash * 0.2; // Invest 20% of available funds
+                double sharesToBuy = amountToInvest / dataPoints[day].getClosing();
+                sharesOwned += sharesToBuy;
+                cash -= amountToInvest;
+            } else if (shouldSell && sharesOwned > 0.0) {
+                double amountToSell = sharesOwned * dataPoints[day].getClosing();
+                cash += amountToSell;
+                sharesOwned = 0.0;
+            }
+        }
+
+        totalProfit += (cash + sharesOwned * dataPoints[dataSize - 1].getClosing() - initialInvestment);
+    }
+
+    return totalProfit / numSimulations;
 }
 
 void PriceHistory::fetchHistoricalData(
