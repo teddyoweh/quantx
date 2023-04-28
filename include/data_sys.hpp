@@ -22,10 +22,10 @@ public:
     time_t getDate();
     string getDateString();
  
-    double getOpening() const; // Mark as const
-    double getHighest() const; // Mark as const
-    double getLowest() const;  // Mark as const
-    double getClosing() const; // Mark as const
+    double getOpening();
+    double getHighest();
+    double getLowest(); 
+    double getClosing();
 
     string toString();
     void printPricePoint();
@@ -49,7 +49,7 @@ class PriceHistory {
 public:
     PriceHistory(string assetSymbol);
     ~PriceHistory();
- size_t dataPointsCount() const; 
+ size_t dataPointsCount(); 
     PricePoint getDataPoint(size_t index);
     PricePoint getDataPoint(time_t date);
     PricePoint getDataPoint(string date);
@@ -64,7 +64,18 @@ public:
     void fetchHistoricalData(const char *startDate,
                              const char *endDate,
                              const char *interval);
-
+      void calculateMovingAverages(size_t windowSize, double emaSmoothingFactor);
+    void calculatePositionSizeForTrade(
+        size_t dataIndex,
+        double portfolioSize,
+        double riskPercentage,
+        double stopLossPercentage
+    );
+    pair<vector<double>, vector<double>> calculateSMA(size_t windowSize);
+    pair<vector<double>, vector<double>> calculateEMA(size_t windowSize, double emaSmoothingFactor);
+ 
+    vector<double> calculateBollingerBands(size_t period, double stdDevFactor);
+    double PriceHistory::performMonteCarloSimulationAdvanced(size_t numSimulations, double initialInvestment);
 private:
     string assetSymbol;
     vector<PricePoint> dataPoints;

@@ -1,7 +1,7 @@
  
  
 #include <cmath>
-#include "../data/sys.cpp"
+#include "sys.cpp"
 #include <algorithm>
 #include <cmath>
 using namespace std;
