@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 
-#include "./include/data_sys.hpp"
+#include "./includes/data_sys.hpp"
 
 class MeanReversion {
 public:

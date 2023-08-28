@@ -4,7 +4,7 @@ using namespace std;
 
 int main() {
     
-    PriceHistory *snp500History = new PriceHistory("MSFT");
+    PriceHistory *snp500History = new PriceHistory("AAPL");
     PriceHistory *eurusdHistory = new PriceHistory("EURUSD=X");
     PriceHistory *euraudHistory = new PriceHistory("EURAUD=X");
 

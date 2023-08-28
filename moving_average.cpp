@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath> 
-#include "./include/data_sys.hpp"
+#include "./includes/data_sys.hpp"
 
 class MovingAverage {
 public:

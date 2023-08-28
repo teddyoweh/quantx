@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstring>
-#include "./include/data_sys.hpp"
+#include "./includes/data_sys.hpp"
 class DynamicHedging {
 public:
     DynamicHedging(const string& assetSymbol, const char* startDate, const char* endDate, const char* interval)
@@ -47,14 +47,3 @@ private:
     PriceHistory priceHistory;
 };
 
-int main() {
-    const char* startDate = "2023-01-01";
-    const char* endDate = "2023-08-01";
-    const char* interval = "1d";
-    string assetSymbol = "AAPL"; 
-
-    DynamicHedging dynamicHedging(assetSymbol, startDate, endDate, interval);
-    dynamicHedging.performDynamicHedging();
-
-    return 0;
-}

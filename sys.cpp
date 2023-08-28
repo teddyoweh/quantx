@@ -4,7 +4,7 @@
 #include <ctime>
 #include <curl/curl.h>
 #include <vector>
-#include "./include/data_sys.hpp"
+#include "./includes/data_sys.hpp"
 #include "position_sizing.cpp"
 using namespace std;
  
@@ -312,14 +312,12 @@ double PriceHistory::performMonteCarloSimulationAdvanced(size_t numSimulations, 
         double cash = investment;
         double sharesOwned = 0.0;
         size_t currentDay = 0;
-
-        // Implement more advanced trading strategy using machine learning models
-        // Example: Using a simple moving average crossover strategy
-        vector<double> movingAveragesShort = calculateSMA(20); // Short-term MA
-        vector<double> movingAveragesLong = calculateSMA(50);  // Long-term MA
+ 
+        vector<double> movingAveragesShort = calculateSMA(20); 
+        vector<double> movingAveragesLong = calculateSMA(50);  
 
         for (size_t day = 51; day < dataSize; ++day) {
-            // Predict using machine learning model (simplified for illustration)
+
             bool shouldBuy = movingAveragesShort[day - 1] > movingAveragesLong[day - 1] &&
                              movingAveragesShort[day] <= movingAveragesLong[day];
 

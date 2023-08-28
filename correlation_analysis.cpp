@@ -1,6 +1,6 @@
 #include <cmath>
 #include <numeric>
-#include "./include/correlation_analysis.hpp"
+#include "./includes/correlation_analysis.hpp"
 
 CorrelationAnalysis::CorrelationAnalysis(PriceHistory &historyA, PriceHistory &historyB)
     : historyA(historyA), historyB(historyB) {}
